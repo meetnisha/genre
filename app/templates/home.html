@@ -1,0 +1,60 @@
+
+{% extends "layout.html" %}
+
+{% block content %}
+
+<script>
+    var fl = document.getElementById('id_excel');
+    
+    fl.onchange = function(e){ 
+        var ext = this.value.match(/\.(.+)$/)[1];
+        switch(ext)
+        {
+            // case 'xls':
+            case 'csv':
+                alert('allowed');
+                break;
+            default:
+                alert('not allowed');
+                this.value='';
+        }
+    };
+</script>
+
+<h2>Upload test csv file</h2>
+
+<form method="get">
+
+
+
+<table class="ui celled table">
+  </thead>
+  <tbody>
+    <tr>
+        <td><label for="id_excel">Excel: </label></td>
+        <td class="fileUpload btn">
+            <input type="file" name="excel" id="id_excel" class="upload" />
+        </td>
+    </tr>
+  </tbody>
+</table>
+<table class="ui celled table">
+    <thead>
+      <tr>
+        <th>Track ID</th>
+        <th>Title</th>
+        <th>Genre</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for track in genres %}
+      <tr>
+        <td>{{ track.trackID }}</td>
+        <td>{{ track.title }}</td>
+        <td>{{ track.genre }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+{% endblock %}
