@@ -1,9 +1,8 @@
 from datetime import datetime
-from xmlrpc.client import DateTime
 from . import models
 from fastapi import FastAPI, Request, Depends, BackgroundTasks, File, UploadFile
 from fastapi.templating import Jinja2Templates
-from .database import SessionLocal, engine
+from .database import conn, engine
 from pydantic import BaseModel 
 from .models import Genre
 from sqlalchemy.orm import Session
@@ -26,7 +25,7 @@ class GenreRequest(BaseModel):
 
 def get_db():
     try:
-        db = SessionLocal()
+        db = conn()
         yield db
     finally:
         db.close()
@@ -36,9 +35,14 @@ def index():
     return {"title": "Hello Coder"} """
 
 @app.get("/")
-def home(request: Request, db: Session = Depends(get_db)):
-    genres = db.query(Genre)    
-    genres = genres.all()
+def home(request: Request):
+    query = "SELECT * FROM genres"
+    cur = conn.cursor()
+    cur.execute(query)
+    genres = cur.fetchall()
+
+    """ genres = conn.query(Genre)    
+    genres = genres.all() """
     
     return templates.TemplateResponse("home.html", {
         "request": request, 
@@ -55,27 +59,30 @@ def classify_genres(df: object, current: object):
     df_cls = pd.DataFrame(data)  
     return df_cls
 
-@app.post("/upload")
-async def form_post(request: Request,file: UploadFile = File(...), db: Session = Depends(get_db)
-                    ):
+@app.post("/upload/")
+async def form_post(excel: UploadFile = File(...)):
     """Uploads the file and processes it in Pandas"""
-    contents = await file.read()
+    contents = await excel.read()
     test_data = io.BytesIO(contents)
     df = pd.read_csv(test_data, sep=";")
-    current = datetime.now()
+    current = datetime.datetime.now()
     df_cls = classify_genres(df,current)
-    df_cls.to_sql("genres", db, schema=None, if_exists='replace', index=True, index_label=None, chunksize=None, dtype=None, method=None)
+    df_cls.to_sql("genres", con=conn, if_exists='replace')
 
     # genre = Genre()
     # genre.id = "123"
     # genre.genre = "Rap"
     # db.add(genre)
-    # db.commit()
+    # db.commit()        
 
     #background_tasks.add_task(classify_genres, df)
-
     query = "SELECT * FROM genres WHERE created={} and ".format(current)
-    results = await db.fetch_all(query=query)
+    cur = conn.cursor()
+    cur.execute(query)
+    results = await cur.fetchall()
+
+    
+    #results = await conn.fetch_all(query=query)
 
     return  results
 
