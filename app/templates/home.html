@@ -23,10 +23,7 @@
 
 <h2>Upload test csv file</h2>
 
-<form method="get">
-
-
-
+<form action="/upload" enctype="multipart/form-data" method="post">
 <table class="ui celled table">
   </thead>
   <tbody>
@@ -34,6 +31,7 @@
         <td><label for="id_excel">Excel: </label></td>
         <td class="fileUpload btn">
             <input type="file" name="excel" id="id_excel" class="upload" />
+            <input type="submit">
         </td>
     </tr>
   </tbody>
@@ -56,5 +54,5 @@
       {% endfor %}
     </tbody>
   </table>
-
+</form>
 {% endblock %}

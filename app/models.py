@@ -1,7 +1,7 @@
 from sqlalchemy import DateTime, Column, Integer, String
 from sqlalchemy.sql import func
 
-from database import Base
+from .database import Base
 
 class Genre(Base):
     __tablename__ = "genres"

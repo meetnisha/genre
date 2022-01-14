@@ -1,9 +1,12 @@
-FROM python:3.7
+FROM python:3.7-slim-stretch as dev
 
-#RUN python -m pip install --upgrade pip 
-    #pip3 install -r requirements.txt
+#WORKDIR /app
+RUN apt update && apt install -y libpq-dev python-dev build-essential
 
-RUN pip3 install fastapi uvicorn jinja2 sqlalchemy
+COPY ./requirements.txt /app//requirements.txt
+RUN pip3 install -r /app/requirements.txt
+
+#RUN pip3 install fastapi uvicorn jinja2 sqlalchemy
 
 COPY ./app /app
 
