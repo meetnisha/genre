@@ -4,21 +4,19 @@
 {% block content %}
 
 <script>
-    var fl = document.getElementById('id_excel');
-    
-    fl.onchange = function(e){ 
-        var ext = this.value.match(/\.(.+)$/)[1];
-        switch(ext)
-        {
-            // case 'xls':
-            case 'csv':
-                alert('allowed');
-                break;
-            default:
-                alert('not allowed');
-                this.value='';
-        }
-    };
+    $(document).ready(
+    function(){
+        $('input:submit').attr('disabled',true);
+        $('input:file').change(
+            function(){
+                if ($(this).val()){
+                    $('input:submit').removeAttr('disabled'); 
+                }
+                else {
+                    $('input:submit').attr('disabled',true);
+                }
+            });
+    });
 </script>
 
 <h2>Upload test csv file</h2>
@@ -30,7 +28,7 @@
     <tr>
         <td><label for="id_excel">Excel: </label></td>
         <td class="fileUpload btn">
-            <input type="file" name="excel" id="id_excel" class="upload" />
+            <input type="file" name="excel" id="id_excel" class="upload" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" />
             <input type="submit">
         </td>
     </tr>
