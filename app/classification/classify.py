@@ -7,7 +7,7 @@ from nltk.corpus import stopwords
 from keras.preprocessing.text import Tokenizer
 from typing import Tuple
 
-def preprocessing(df_test: object) -> Tuple[object, object]:
+def preprocessing(df: object, folder: str) -> Tuple[object, object]:
     """[summary]
     Preprocess the test data, extract the features for classification
     Args:
@@ -16,9 +16,8 @@ def preprocessing(df_test: object) -> Tuple[object, object]:
     Returns:
         Tuple[object, object]: extracted features, test dataframe
     """
-    print('preprocessing', df_test.columns)
-    df_test = df_test.dropna()
-    df_test = df_test.reset_index(drop=True)
+    df = df.dropna()
+    df = df.reset_index(drop=True)
 
     #features to drop based on high correlation
     corr_to_drop = ['vect_43', 'vect_44', 'vect_45', 'vect_46', 'vect_47', 'vect_48', 'vect_49', \
@@ -29,7 +28,7 @@ def preprocessing(df_test: object) -> Tuple[object, object]:
     'vect_137', 'vect_138', 'vect_139', 'vect_140', 'vect_141', 'vect_142', 'vect_143', 'vect_144', \
     'vect_145', 'vect_146', 'vect_148']
 
-    df_test = df_test.drop(df_test[corr_to_drop], axis=1)
+    df_test = df.drop(df[corr_to_drop], axis=1)
 
     #features to drop based on recursive feature elimination on xgboost model
     features_drop_array = ['trackID', 'time_signature', 'key', 'mode', 'vect_12', 'vect_22', 'vect_25', \
@@ -45,30 +44,38 @@ def preprocessing(df_test: object) -> Tuple[object, object]:
     df_test.title = df_test.title.apply(remove_stopwords)
     df_test.tags = df_test.tags.apply(remove_stopwords)
     df_test = tokenize(df_test)
-
-    with open('../data/sc.pkl', 'rb') as f:
+    with open(folder + '/data/sc.pkl', 'rb') as f:
         sc = pickle.load(f)
-    X_test = sc.fit_transform(np.array(df_test.iloc[:, :-1], dtype=float))
+    X_test = sc.fit_transform(np.array(df_test.iloc[:, :], dtype=float))
     
-    return X_test, df_test
+    return X_test, df
 
-def classify_genres(df: object, current: object) -> object:
+def classify_genres(df: object, current: object, folder: str) -> object:
+    """[summary]
+    Preprocess and classify the test file
+    Args:
+        df (object): original uploaded test file
+        current (object): current date time
+        folder (str): folder path of saved models
 
-    X_test, df_test = preprocessing(df)
+    Returns:
+        object: return the classification data
+    """
+    X_test, df_test = preprocessing(df, folder)
 
     # load json and create model
-    json_file = open('../data/drop_model_new.json', 'r')
+    json_file = open(folder + '/data/drop_model_new.json', 'r')
     loaded_model_json = json_file.read()
     json_file.close()
     loaded_model = model_from_json(loaded_model_json)
     # load weights into new model
-    loaded_model.load_weights("../data/drop_model_new.h5")
+    loaded_model.load_weights(folder + '/data/drop_model_new.h5')
     print("Loaded model from disk")
 
     y_pred_new = loaded_model.predict(X_test)
     classes = np.argmax(y_pred_new, axis = 1)
 
-    with open('../data/labels_mapping.json') as json_file:
+    with open(folder + '/data/labels_mapping.json') as json_file:
         labels_json_file = json.load(json_file)
 
     p = dict(zip(labels_json_file.values(),labels_json_file.keys()))
@@ -76,8 +83,10 @@ def classify_genres(df: object, current: object) -> object:
 
     df_test['genre'] = labels
     df_test['created'] = current
-    df_test.drop(df_test.columns.difference(['trackID','title', 'genre', 'created']), 1, inplace=True)
-    return df_test
+
+    df_test_new = df_test[['trackID','title', 'genre', 'created']]
+    #df_test_new.to_csv(folder + '/data/test_prediction.csv')
+    return df_test_new
 
 def remove_stopwords(input_text):
     '''
@@ -97,6 +106,14 @@ def remove_stopwords(input_text):
 
     
 def tokenize(df_test: object) -> object:
+    """[summary]
+    Function to tokenize the title and tags
+    Args:
+        df_test (object): test dataframe 
+
+    Returns:
+        object: modified dataframe
+    """
     NB_WORDS = 10000  # Parameter indicating the number of words we'll put in the dictionary
     tk = Tokenizer(num_words=NB_WORDS,
                 filters='!"#$%&()*+,-./:;<=>?@[\\]^_`{"}~\t\n',

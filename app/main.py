@@ -12,10 +12,11 @@ from sqlalchemy.orm import Session
 import pandas as pd
 import io
 from starlette.responses import RedirectResponse
-
+import os
 app = FastAPI()
 
 models.Base.metadata.create_all(bind=engine)
+CURRENT_FOLDER = os.path.dirname(os.path.abspath(__file__))
 
 BASE_PATH = Path(__file__).resolve().parent
 templates = Jinja2Templates(directory=str(BASE_PATH / "templates"))
@@ -46,15 +47,14 @@ def home(request: Request, db: Session = Depends(get_db)) -> object:
 
 
 @app.post("/upload/")
-async def form_post(request: Request, excel: UploadFile = File(...), db: Session = Depends(get_db)
+async def form_post(excel: UploadFile = File(...), db: Session = Depends(get_db)
                     ) -> object:
     """Uploads the file and processes it in Pandas"""
     contents = await excel.read()
     test_data = io.BytesIO(contents)    
     df = pd.read_csv(test_data)
     current = datetime.now()
-    print('main', len(df.columns))
-    df_cls = classify.classify_genres(df, current)
+    df_cls = classify.classify_genres(df, current, CURRENT_FOLDER)
 
     # with SessionLocal.begin() as session:
     #db.bulk_insert_mappings(Genre, df_cls)
@@ -72,15 +72,5 @@ async def form_post(request: Request, excel: UploadFile = File(...), db: Session
             "code": "error",
             "message": "Some or all trackIds have been classified already."
         }
-
-    """ # query from a class
-    statement = select(Genre).filter_by(created=current)
-
-    # list of first element of each row (i.e. Genre objects)
-    results = db.execute(statement).scalars().all()
-    message = {"code": "success",
-            "message": "genre was added to the database"}
-    print(message) """
-
 
     return RedirectResponse(url="/", status_code=302)
