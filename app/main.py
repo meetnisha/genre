@@ -5,7 +5,7 @@ from fastapi import FastAPI, Request, Depends, BackgroundTasks, File, UploadFile
 from fastapi.templating import Jinja2Templates
 from .database.database import SessionLocal, engine
 from pydantic import BaseModel
-from .database.models import Genre
+from .database.models import Genres, Tracks
 from .classification import classify
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -13,6 +13,8 @@ import pandas as pd
 import io
 from starlette.responses import RedirectResponse
 import os
+from typing import Optional
+
 app = FastAPI()
 
 models.Base.metadata.create_all(bind=engine)
@@ -23,11 +25,6 @@ templates = Jinja2Templates(directory=str(BASE_PATH / "templates"))
 
 #templates = Jinja2Templates(directory="templates")
 
-
-class GenreRequest(BaseModel):
-    symbol: str
-
-
 def get_db():
     try:
         db = SessionLocal()
@@ -37,12 +34,12 @@ def get_db():
 
 @app.get("/")
 def home(request: Request, db: Session = Depends(get_db)) -> object:
-    genres = db.query(Genre)
-    genres = genres.all()
-    #print(genres)
+    tracks = db.query(Tracks)
+    tracks = tracks.all()
+
     return templates.TemplateResponse("home.html", {
         "request": request,
-        "genres": genres
+        "tracks": tracks
     })
 
 
@@ -54,18 +51,33 @@ async def form_post(excel: UploadFile = File(...), db: Session = Depends(get_db)
     test_data = io.BytesIO(contents)    
     df = pd.read_csv(test_data)
     current = datetime.now()
-    df_cls = classify.classify_genres(df, current, CURRENT_FOLDER)
+    df_cls, new_genres = classify.classify_genres(df, current, CURRENT_FOLDER)
 
     # with SessionLocal.begin() as session:
     #db.bulk_insert_mappings(Genre, df_cls)
-    objects = []
+    objTracks = []
     for idx, item in df_cls.iterrows():
-        one_object = Genre(
+        one_object = Tracks(
             trackID=item[0], title=item[1], genre=item[2], created=item[3])
-        objects.append(one_object)
+        objTracks.append(one_object)
 
     try:
-        db.bulk_save_objects(objects)
+        db.bulk_save_objects(objTracks)
+        db.commit()
+    except:
+        return {
+            "code": "error",
+            "message": "Some or all trackIds have been classified already."
+        }
+
+    objGenres = []
+    for key in new_genres:
+        one_object = Genres(
+            genreID=key, genreName=new_genres[key])
+        objGenres.append(one_object)
+
+    try:
+        db.bulk_save_objects(objGenres)
         db.commit()
     except:
         return {
@@ -74,3 +86,32 @@ async def form_post(excel: UploadFile = File(...), db: Session = Depends(get_db)
         }
 
     return RedirectResponse(url="/", status_code=302)
+
+@app.get("/search/")
+async def home(request: Request, db: Session = Depends(get_db)) -> object:
+    genre_filter = request.query_params.get('filter', None)
+    print('genre_filter', genre_filter)
+    genres = db.query(Genres)
+    genres = genres.all()
+    if genre_filter == None or genre_filter == '':        
+        tracks = db.query(Tracks)
+        tracks = tracks.all()
+    else:        
+        tracks = search_track(genre_filter, db=db)
+    
+    dropdownChoices = {}
+    dropdownChoices["Select Genre"] = "-1"
+    for item in genres:
+        if item.genreName not in dropdownChoices:
+            dropdownChoices[item.genreName] = item.genreID
+
+    return templates.TemplateResponse("search.html", {
+        "request": request,
+        "tracks": tracks, 
+        "genres": dropdownChoices
+    })
+
+def search_track(query: str, db: Session):
+    #genres = db.query(Genre).filter(Genre.genre == user_id)
+    tracks = db.query(Tracks).filter(Tracks.genre == query).all()
+    return tracks

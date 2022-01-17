@@ -1,0 +1,64 @@
+
+{% extends "layout.html" %}
+
+{% block content %}
+
+<script>
+    $('select').change(function(){
+      var theVal = $(this).val();
+      alert(theVal)
+      if (theVal == "Select") 
+      {
+          $('#btnsearch').prop('disabled', true);
+      }
+      else{
+          $('#btnsearch').prop('disabled', false);
+      }
+    });
+
+    function getOption() {
+        selectElement = document.querySelector('#choices_dropdown');
+        output = selectElement.value;
+        document.querySelector('.output').textContent = output;
+    }
+</script>
+{% include 'include/topnav.html' %}
+<h2>Search for Genre</h2>
+
+<form action="/search/" enctype="multipart/form-data" method="get">
+<table class="ui celled table">
+  </thead>
+  <tbody>
+    <tr>
+      <td><label for="id_genre">Search based on genre: </label></td>
+      <td> 
+        <select id="choices_dropdown" name="filter">
+        {% for genre in genres %}
+        <option value={{genre.genreID}}>{{genre.genreName}}</option>
+        {% endfor %}
+        </select>
+        <button class="btn btn-outline-success" id="btnsearch" type="submit" onclick="getOption()">Search</button>
+  </td>
+    </tr>
+  </tbody>
+</table>
+<table class="ui celled table">
+    <thead>
+      <tr>
+        <th>Track ID</th>
+        <th>Title</th>
+        <th>Genre</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for track in tracks %}
+      <tr>
+        <td>{{ track.trackID }}</td>
+        <td>{{ track.title }}</td>
+        <td>{{ track.genre }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</form>
+{% endblock %}

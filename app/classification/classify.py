@@ -78,15 +78,15 @@ def classify_genres(df: object, current: object, folder: str) -> object:
     with open(folder + '/data/labels_mapping.json') as json_file:
         labels_json_file = json.load(json_file)
 
-    p = dict(zip(labels_json_file.values(),labels_json_file.keys()))
-    labels = [p[k] for k in classes]
+    new_genres = dict(zip(labels_json_file.values(),labels_json_file.keys()))
+    labels = [new_genres[k] for k in classes]
 
     df_test['genre'] = labels
     df_test['created'] = current
 
     df_test_new = df_test[['trackID','title', 'genre', 'created']]
     #df_test_new.to_csv(folder + '/data/test_prediction.csv')
-    return df_test_new
+    return df_test_new, new_genres
 
 def remove_stopwords(input_text):
     '''

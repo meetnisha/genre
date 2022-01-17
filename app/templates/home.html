@@ -18,7 +18,7 @@
             });
     });
 </script>
-
+{% include 'include/topnav.html' %}
 <h2>Upload test csv file</h2>
 
 <form action="/upload/" enctype="multipart/form-data" method="post">
@@ -31,6 +31,7 @@
             <input type="file" name="excel" id="id_excel" class="upload" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" />
             <input type="submit">
         </td>
+        
     </tr>
   </tbody>
 </table>
@@ -43,7 +44,7 @@
       </tr>
     </thead>
     <tbody>
-      {% for track in genres %}
+      {% for track in tracks %}
       <tr>
         <td>{{ track.trackID }}</td>
         <td>{{ track.title }}</td>

@@ -7,11 +7,16 @@ docker-compose up -d --build
 # To check log files
 docker logs -f core-api-container
 
+# Screenshots
+Home - homepage.png
+Dummy data output - output_template.png
+Prediction output - test_output.png
+
 # OpenSpec API
 http://localhost:8000/docs
 
 ## Conclusion of ML analysis
-File: EDA_ML.ipynb
+File: /app/analysis/EDA_ML.ipynb
 You shouldnot get 100% accuracy from your training dataset. This means my model is overfitting.
 XGBoost Test Accuracy - 65.71. 
     a. I tried to find better hyper paramaters like n_estimators, reg_lambda but the space was too large.
@@ -24,7 +29,7 @@ As I need to decrease the complexity by removing features, I used recursive feat
 Hence I would use the features extracted here to build a deep learning model where I can use the title and tags feature as well.
 
 ## Conclusion of DL Analysis
-File: EDA_DL.ipynb
+File: /app/analysis/EDA_DL.ipynb
 
 1. Cleaned data, removed all null values
 2. Dropped highly co-related features
