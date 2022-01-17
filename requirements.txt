@@ -4,3 +4,6 @@ jinja2
 sqlalchemy
 python-multipart
 pandas
+tensorflow
+keras
+nltk

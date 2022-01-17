@@ -1,16 +1,18 @@
 from pathlib import Path
 from datetime import datetime
-from . import models
+from .database import models
 from fastapi import FastAPI, Request, Depends, BackgroundTasks, File, UploadFile
 from fastapi.templating import Jinja2Templates
-from .database import SessionLocal, engine
+from .database.database import SessionLocal, engine
 from pydantic import BaseModel
-from .models import Genre
+from .database.models import Genre
+from .classification import classify
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 import pandas as pd
 import io
 from starlette.responses import RedirectResponse
+
 app = FastAPI()
 
 models.Base.metadata.create_all(bind=engine)
@@ -32,43 +34,27 @@ def get_db():
     finally:
         db.close()
 
-
-""" @app.get("/")
-def index():
-    return {"title": "Hello Coder"} """
-
-
 @app.get("/")
-def home(request: Request, db: Session = Depends(get_db)):
+def home(request: Request, db: Session = Depends(get_db)) -> object:
     genres = db.query(Genre)
     genres = genres.all()
-    print(genres)
+    #print(genres)
     return templates.TemplateResponse("home.html", {
         "request": request,
         "genres": genres
     })
 
 
-def classify_genres(df: object, current: object):
-    # assign data of lists.
-    data = {'trackID': [22, 23, 14, 15], 'title': ['Tom1', 'Joseph2', 'Krish3', 'John4'],
-            'genre': ['classic', 'rock', 'sufi', 'romantic'], 'created': [current, current, current, current]}
-
-    # Create DataFrame
-    df_cls = pd.DataFrame(
-        data, columns=['trackID', 'title', 'genre', 'created'])
-    return df_cls
-
-
 @app.post("/upload/")
 async def form_post(request: Request, excel: UploadFile = File(...), db: Session = Depends(get_db)
-                    ):
+                    ) -> object:
     """Uploads the file and processes it in Pandas"""
     contents = await excel.read()
     test_data = io.BytesIO(contents)    
-    df = pd.read_csv(test_data, sep=";")
+    df = pd.read_csv(test_data)
     current = datetime.now()
-    df_cls = classify_genres(df, current)
+    print('main', len(df.columns))
+    df_cls = classify.classify_genres(df, current)
 
     # with SessionLocal.begin() as session:
     #db.bulk_insert_mappings(Genre, df_cls)
@@ -98,27 +84,3 @@ async def form_post(request: Request, excel: UploadFile = File(...), db: Session
 
 
     return RedirectResponse(url="/", status_code=302)
-
-
-""" @app.post("/upload")
-async def find_genre(background_tasks: BackgroundTasks, csv_file: UploadFile = File(...), db: Session = Depends(get_db)):
-    #Get the list of test.csv into an data frame object 
-    # and call classify function
-    # Return id and genre as part of the classification
-    # Persist it to the DB
-    print('HIIII')
-    print(csv_file.file)
-    df = csv.reader(codecs.iterdecode(csv_file.file,'utf-8'))
- 
-    genre = Genre()
-    genre.id = "123"
-    genre.genre = "Rap"
-    db.add(genre)
-    db.commit()
-
-    background_tasks.add_task(classify_genres, df)
-
-    return {
-        "code": "success",
-        "message": "genre was added to the database"
-    } """
