@@ -1,8 +1,16 @@
 # genre
 Classification music genre
 
+# Create a virtual environment
+python3 -m venv music
+source music/bin/activate
+
 # To use as docker, clone repo and run
 docker-compose up -d --build
+
+Or 
+
+docker-compose -f docker-compose.yml up -d --build
 
 # To check log files
 docker logs -f core-api-container
