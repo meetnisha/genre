@@ -9,8 +9,8 @@ docker logs -f core-api-container
 
 # Screenshots
 Home - homepage.png
-Dummy data output - output_template.png
-Prediction output - test_output.png
+Prediction output - afterprediction.png
+Search Page - searchpage.png
 
 # OpenSpec API
 http://localhost:8000/docs
