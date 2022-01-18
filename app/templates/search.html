@@ -4,10 +4,10 @@
 {% block content %}
 
 <script>
-    $('select').change(function(){
+    $('choices_dropdown').change(function(){
       var theVal = $(this).val();
       alert(theVal)
-      if (theVal == "Select") 
+      if (theVal == "-1") 
       {
           $('#btnsearch').prop('disabled', true);
       }
@@ -23,14 +23,14 @@
     }
 </script>
 {% include 'include/topnav.html' %}
-<h2>Search for Genre</h2>
+<h2>Search Tracks based on Genre</h2>
 
 <form action="/search/" enctype="multipart/form-data" method="get">
 <table class="ui celled table">
   </thead>
   <tbody>
     <tr>
-      <td><label for="id_genre">Search based on genre: </label></td>
+      <td><label for="id_genre">Select Genre: </label></td>
       <td> 
         <select id="choices_dropdown" name="filter">
         {% for genre in genres %}

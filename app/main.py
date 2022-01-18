@@ -75,14 +75,13 @@ async def form_post(excel: UploadFile = File(...), db: Session = Depends(get_db)
         one_object = Genres(
             genreID=key, genreName=new_genres[key])
         objGenres.append(one_object)
-
     try:
         db.bulk_save_objects(objGenres)
         db.commit()
     except:
         return {
             "code": "error",
-            "message": "Some or all trackIds have been classified already."
+            "message": "All genreIds have been added already."
         }
 
     return RedirectResponse(url="/", status_code=302)
@@ -99,19 +98,32 @@ async def home(request: Request, db: Session = Depends(get_db)) -> object:
     else:        
         tracks = search_track(genre_filter, db=db)
     
-    dropdownChoices = {}
+    """ dropdownChoices = {}
     dropdownChoices["Select Genre"] = "-1"
     for item in genres:
         if item.genreName not in dropdownChoices:
-            dropdownChoices[item.genreName] = item.genreID
+            dropdownChoices[item.genreName] = item.genreID """
 
     return templates.TemplateResponse("search.html", {
         "request": request,
         "tracks": tracks, 
-        "genres": dropdownChoices
+        "genres": genres
     })
 
-def search_track(query: str, db: Session):
-    #genres = db.query(Genre).filter(Genre.genre == user_id)
-    tracks = db.query(Tracks).filter(Tracks.genre == query).all()
-    return tracks
+def search_track(genre_filter: str, db: Session):
+    genres = db.query(Genres).filter(Genres.genreID == genre_filter).first()
+    if genres != None:
+        tracks = db.query(Tracks).filter(Tracks.genre == genres.genreName).all()
+        if tracks != None:
+            return tracks
+        else:
+            return {
+                "code": "Warning",
+                "message": "No tracks found for this genre."
+            }
+    else:
+        return {
+            "code": "error",
+            "message": "Requested Genre doesnot exist."
+        }
+    
