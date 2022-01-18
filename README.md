@@ -8,8 +8,11 @@ docker-compose up -d --build
 docker logs -f core-api-container
 
 # Screenshots
+
 Home - homepage.png
+
 Prediction output - afterprediction.png
+
 Search Page - searchpage.png
 
 # OpenSpec API
