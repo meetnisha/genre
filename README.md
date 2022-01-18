@@ -20,16 +20,18 @@ http://localhost:8000/docs
 
 ## Conclusion of ML analysis
 File: /app/analysis/EDA_ML.ipynb
-You shouldnot get 100% accuracy from your training dataset. This means my model is overfitting.
+
+One shouldnot get 100% accuracy from your training dataset. This means my model is overfitting.
+
 XGBoost Test Accuracy - 65.71. 
-    a. I tried to find better hyper paramaters like n_estimators, reg_lambda but the space was too large.
-    b. I applied dimensionalty reducing technique like PCA but the accuracy got worse.
-    c. It consumed lots of time and hence I decided to move to Deep Learning.
+1. I tried to find better hyper paramaters like n_estimators, reg_lambda but the space was too large.
+2. I applied dimensionalty reducing technique like PCA but the accuracy got worse.
+3. It consumed lots of time and hence I decided to move to Deep Learning.
 
 ### Check EDA_DL file for further analysis
 
 As I need to decrease the complexity by removing features, I used recursive feature elimination but it took almost 24 hours to run on my machine. 
-Hence I would use the features extracted here to build a deep learning model where I can use the title and tags feature as well.
+Hence the features extracted in my ML analysis are used to build a deep learning model where I wanted to use title and tags feature as well.
 
 ## Conclusion of DL Analysis
 File: /app/analysis/EDA_DL.ipynb
