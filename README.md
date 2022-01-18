@@ -1,5 +1,5 @@
-# genre
-Classification music genre
+# Objective
+Genre Classification of Million Song Dataset
 
 # Create a virtual environment
 python3 -m venv music
