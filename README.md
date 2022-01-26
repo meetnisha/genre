@@ -3,6 +3,7 @@ Genre Classification of Million Song Dataset
 
 # Create a virtual environment
 python3 -m venv music
+
 source music/bin/activate
 
 # Steps to run the project locally
@@ -15,34 +16,39 @@ Run these commands in the project's folder:
 
 3. run `./run_local.sh` in root folder of the project
 
-4. Alternatively, to use as docker, clone repo and run
+Alternatively, clone repo and run
+
 docker-compose up -d --build
 
 Or 
 
 docker-compose -f docker-compose.yaml up -d --build
 
-# To check log files
+## To check log files
 docker logs -f core-api-container
 
-# Screenshots
+# Application 
+## Report
+Please check Report.docx for details about this application
 
-Home - homepage.png
+## Screenshots
 
-Prediction output - afterprediction.png
+1. Home - homepage.png
+2. Prediction output - afterprediction.png
+3. Search Page - searchpage.png
 
-Search Page - searchpage.png
-
-# Home Page
+## Home Page
 http://localhost:8000/
 
-# Output file 
+## Prediction Output file
+The test output file is saved in this folder:
+
 /data/test_prediction.csv
 
-# OpenSpec API
+## OpenSpec API
 http://localhost:8000/docs
 
-## Conclusion of ML analysis
+# Conclusion of ML analysis
 File: /app/analysis/EDA_ML.ipynb
 
 One shouldnot get 100% accuracy from your training dataset. This means my model is overfitting.
@@ -57,7 +63,7 @@ XGBoost Test Accuracy - 65.71.
 As I need to decrease the complexity by removing features, I used recursive feature elimination but it took almost 24 hours to run on my machine. 
 Hence the features extracted in my ML analysis are used to build a deep learning model where I wanted to use title and tags feature as well.
 
-## Conclusion of DL Analysis
+# Conclusion of DL Analysis
 File: /app/analysis/EDA_DL.ipynb
 
 1. Cleaned data, removed all null values
