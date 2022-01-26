@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  core_api:
+    image: ${REGISTRY_PREFIX}core_api${REGISTRY_TAG}
+    build: .
+    container_name: "core-api-container"
+    ports:
+      - "8000:15400"
+    environment:
+      - SQLITE_PATH=/genre.db
+    volumes:
+      - ./app:/app
+
+  unit_test:
+    image: ${REGISTRY_PREFIX}unit_test${REGISTRY_TAG}
+    build:
+      context: ./app
+      dockerfile: tests/unit/Dockerfile
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200k"
+        max-file: "10"
+    depends_on:
+      - core_api
+    command: pytest --tb=short --cov=.

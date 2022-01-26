@@ -5,12 +5,22 @@ Genre Classification of Million Song Dataset
 python3 -m venv music
 source music/bin/activate
 
-# To use as docker, clone repo and run
+# Steps to run the project locally
+Make sure docker is setup in your system. Then follow these steps to install the project:
+
+1. clone the project by using: `git clone git@github.com:meetnisha/genre.git`
+Run these commands in the project's folder:
+
+2. `git submodule update --init --recursive`
+
+3. run `./run_local.sh` in root folder of the project
+
+4. Alternatively, to use as docker, clone repo and run
 docker-compose up -d --build
 
 Or 
 
-docker-compose -f docker-compose.yml up -d --build
+docker-compose -f docker-compose.yaml up -d --build
 
 # To check log files
 docker logs -f core-api-container
@@ -22,6 +32,12 @@ Home - homepage.png
 Prediction output - afterprediction.png
 
 Search Page - searchpage.png
+
+# Home Page
+http://localhost:8000/
+
+# Output file 
+/data/test_prediction.csv
 
 # OpenSpec API
 http://localhost:8000/docs
