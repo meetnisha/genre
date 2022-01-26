@@ -31,11 +31,13 @@ docker logs -f core-api-container
 ## Report
 Please check Report.docx for details about this application
 
-## Screenshots
-
-1. Home - homepage.png
-2. Prediction output - afterprediction.png
-3. Search Page - searchpage.png
+## DEMO
+## Video: 
+/documents/demo.gif
+### Screenshots
+1. Home - home.png
+2. Prediction output - prediction.png
+3. Search functionality - search.png
 
 ## Home Page
 http://localhost:8000/

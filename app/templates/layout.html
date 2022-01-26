@@ -8,8 +8,10 @@
     </head>
 
     <body>
-        <div class="ui container">
-        <h1>Music Genre</h1>
+        <div class="ui container">        
+        
+        {% include 'include/topnav.html' %}
+        <a class="nav-link" href="/">Home</a>
         {% block content %}
         {% endblock %}
         </div>

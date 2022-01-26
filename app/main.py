@@ -62,57 +62,77 @@ def home(request: Request, db: Session = Depends(get_db)) -> object:
     Returns:
         object: Home.html
     """
+    genres = db.query(Genres)
+    genres = genres.all()
     tracks = db.query(Tracks)
     tracks = tracks.all()
 
     return templates.TemplateResponse("home.html", {
         "request": request,
-        "tracks": tracks
+        "tracks": tracks, 
+        "genres": genres
     })
 
 
 @app.post("/upload/")
-async def form_post(excel: UploadFile = File(...), db: Session = Depends(get_db)
+async def form_post(request: Request, excel: UploadFile = File(...), db: Session = Depends(get_db)
                     ) -> object:
     """Uploads the file and processes it in Pandas"""
     contents = await excel.read()
     test_data = io.BytesIO(contents)    
     df = pd.read_csv(test_data)
-    current = datetime.now()
-    df_cls, new_genres = classify.classify_genres(df, current, loaded_model, labels_json_file, sc, CURRENT_FOLDER)
+    if df.shape[0] > 0 and df.shape[1] == 157:
+        current = datetime.now()
+        df_cls, new_genres = classify.classify_genres(df, current, loaded_model, labels_json_file, sc, CURRENT_FOLDER)
 
-    # with SessionLocal.begin() as session:
-    #db.bulk_insert_mappings(Genre, df_cls)
-    objTracks = []
-    for idx, item in df_cls.iterrows():
-        one_object = Tracks(
-            trackID=item[0], title=item[1], genre=item[2], created=item[3])
-        objTracks.append(one_object)
+        # with SessionLocal.begin() as session:
+        #db.bulk_insert_mappings(Genre, df_cls)
+        objTracks = []
+        for idx, item in df_cls.iterrows():
+            one_object = Tracks(
+                trackID=item[0], title=item[1], genre=item[2], created=item[3])
+            objTracks.append(one_object)
 
-    try:
-        db.bulk_save_objects(objTracks)
-        db.commit()
-    except:
+        try:
+            db.bulk_save_objects(objTracks)
+            db.commit()
+        except:
+            return {
+                "code": "error",
+                "message": "Some or all trackIds have been classified already."
+            }
+
+        objGenres = []
+        for key in new_genres:
+            one_object = Genres(
+                genreID=key, genreName=new_genres[key])
+            objGenres.append(one_object)
+        try:
+            db.bulk_save_objects(objGenres)
+            db.commit()
+        except:
+            return {
+                "code": "error",
+                "message": "All genreIds have been added already."
+            }
+    else:
         return {
-            "code": "error",
-            "message": "Some or all trackIds have been classified already."
-        }
+                "code": "error",
+                "message": "No or mismatched data found."
+            }
 
-    objGenres = []
-    for key in new_genres:
-        one_object = Genres(
-            genreID=key, genreName=new_genres[key])
-        objGenres.append(one_object)
-    try:
-        db.bulk_save_objects(objGenres)
-        db.commit()
-    except:
-        return {
-            "code": "error",
-            "message": "All genreIds have been added already."
-        }
+    genres = db.query(Genres)
+    genres = genres.all()
+    tracks = db.query(Tracks)
+    tracks = tracks.all()
 
-    return RedirectResponse(url="/", status_code=302)
+    return templates.TemplateResponse("home.html", {
+        "request": request,
+        "tracks": tracks, 
+        "genres": genres
+    })
+
+    #return RedirectResponse(url="/", status_code=302)
 
 @app.get("/search/")
 async def search(request: Request, db: Session = Depends(get_db)) -> object:
@@ -133,7 +153,7 @@ async def search(request: Request, db: Session = Depends(get_db)) -> object:
         if item.genreName not in dropdownChoices:
             dropdownChoices[item.genreName] = item.genreID """
 
-    return templates.TemplateResponse("search.html", {
+    return templates.TemplateResponse("home.html", {
         "request": request,
         "tracks": tracks, 
         "genres": genres

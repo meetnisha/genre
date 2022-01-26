@@ -75,7 +75,7 @@ def classify_genres(df: object, current: object, loaded_model: object, labels_js
 
     df_test_new = df_test[['trackID','title', 'genre', 'created']]
     #Saving the file
-    df_test_new.to_csv(folder + '/data/test_prediction.csv')
+    df_test_new.to_csv(folder + '/output/test_prediction.csv')
     return df_test_new, new_genres
 
 def remove_stopwords(input_text):
