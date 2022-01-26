@@ -40,11 +40,7 @@ Please check Report.docx for details about this application
 ## Home Page
 http://localhost:8000/
 
-<<<<<<< HEAD
 ## Prediction Output file
-=======
-# Output file
->>>>>>> d5e21a0c4ae60839faf8f186f0a7f3dbdb3e2813
 The test output file is saved in this folder:
 
 /data/test_prediction.csv
