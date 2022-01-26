@@ -3,6 +3,7 @@ Genre Classification of Million Song Dataset
 
 # Create a virtual environment
 python3 -m venv music
+
 source music/bin/activate
 
 # Steps to run the project locally
@@ -15,7 +16,8 @@ Run these commands in the project's folder:
 
 3. run `./run_local.sh` in root folder of the project
 
-4. Alternatively, to use as docker, clone repo and run
+Alternatively, clone repo and run
+
 docker-compose up -d --build
 
 Or 
@@ -36,7 +38,9 @@ Search Page - searchpage.png
 # Home Page
 http://localhost:8000/
 
-# Output file 
+# Output file
+The test output file is saved in this folder:
+
 /data/test_prediction.csv
 
 # OpenSpec API
